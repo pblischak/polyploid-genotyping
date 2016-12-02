@@ -1,14 +1,17 @@
 ## `polyploid-genotyping`
 
-This is the GitHub repository for the manuscript "SNP Genotyping and Analysis of Genetic Diversity in Polyploids", which is currently under peer review. The repo consists of three main folders:
+### ZENODO BADGE HERE
 
- - `code/`: Code for performing simulations and for running analyses.
+This is the GitHub repository for the manuscript "SNP Genotyping and Analysis of Genetic Diversity in Polyploids", which is currently under peer review. The repo consists of four main folders:
 
- - `doc/`: Figures and LaTeX file for the manuscript.
+ - [`code/`](https://github.com/pblischak/polyploid-genotyping/code/): Code for performing simulations and for running analyses.
 
- - `data/`: the empirical data sets that were used in the manuscript.
+ - [`data/`](https://github.com/pblischak/polyploid-genotyping/data/): the empirical data sets that were used in the manuscript.
 
- - `supp/`: Figures and LaTeX file for the supplemental materials.
+ - [`doc/`](https://github.com/pblischak/polyploid-genotyping/doc/): Figures and LaTeX file for the manuscript.
 
+ - [`supp/`](https://github.com/pblischak/polyploid-genotyping/supp/): Figures and LaTeX file for the supplemental materials.
 
- More details on the contents of each folder can be found in their respective README files.
+More details on the contents of each folder can be found in their respective README files.
+
+The manuscript can be found as a preprint on bioRxiv: .
