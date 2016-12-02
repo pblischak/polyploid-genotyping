@@ -1,0 +1,7 @@
+code/ebg/*.o
+code/ebg/*.txt
+.DS_Store
+.Rhistory
+.RData
+*~
+.*~
