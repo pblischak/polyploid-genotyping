@@ -151,7 +151,38 @@ $(document).ready(function () {
 </div>
 
 
+<div id="in-the-works" class="section level1">
+<h1><strong>In the works…</strong></h1>
+</div>
+<div id="compiling-ebg" class="section level1">
+<h1>Compiling <code>ebg</code></h1>
+<p>The software to infer genotypes is called <code>ebg</code> and can be found in the <code>ebg</code> folder in the main <code>polyploid-genotyping</code> repo on GitHub. Inside the <code>ebg</code> folder you can compile the software from source using the Makefile. We have successfully compiled the program using GCC and Clang (Mac OSX). No external libraries are required.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">make</span> <span class="kw">&amp;&amp;</span> <span class="kw">sudo</span> make install</code></pre></div>
+</div>
+<div id="analyzing-the-betula-data" class="section level1">
+<h1>Analyzing the <em>Betula</em> Data</h1>
+<p>Go to the <code>data/</code> folder in the <code>polyploid-genotyping</code> repo and look at the formatting of the of the input files for <em>Betula pendula</em> and <em>B</em>. <em>pubescens</em>. <em>Betula pendula</em> is a diploid and <em>B</em>. <em>pubescens</em> is an allotetraploid.</p>
+<div id="analying-data-for-b.-pendula" class="section level3">
+<h3>Analying data for <em>B</em>. <em>pendula</em></h3>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ebg</span> hwe -p 2 -n 34 -l 49021 \
+  -t c20-pendula-totReads.txt \
+  -r c20-pendula-refReads.txt \
+  -e c20-pendula-error.txt \
+  --prefix pendula \
+  --iters 1000</code></pre></div>
+</div>
+<div id="analying-data-for-b.-pubescens" class="section level3">
+<h3>Analying data for <em>B</em>. <em>pubescens</em></h3>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ebg</span> alloSNP -f pendula-freqs.txt \
+  -p1 2 -p2 2 -n 130 -l 49021 \
+  -t c20-pubescens-totReads.txt \
+  -r c20-pubescens-refReads.txt \
+  -e c20-pubescens-error.txt \
+  --prefix pubescens \
+  --iters 100 \
+  --brent</code></pre></div>
+</div>
+</div>
 
 
 

@@ -8,6 +8,40 @@ output:
     highlight: pygments
 ---
 
+# **In the works...**
+
+# Compiling `ebg`
+
+The software to infer genotypes is called `ebg` and can be found in the `ebg` folder in the main `polyploid-genotyping` repo on GitHub. Inside the `ebg` folder you can compile the software from source using the Makefile. We have successfully compiled the program using GCC and Clang (Mac OSX). No external libraries are required.
+
 ```bash
 make && sudo make install
+```
+
+# Analyzing the *Betula* Data
+
+Go to the `data/` folder in the `polyploid-genotyping` repo and look at the formatting of the of the input files for *Betula pendula* and *B*. *pubescens*. *Betula pendula* is a diploid and *B*. *pubescens* is an allotetraploid.
+
+### Analying data for *B*. *pendula*
+
+```bash
+ebg hwe -p 2 -n 34 -l 49021 \
+  -t c20-pendula-totReads.txt \
+  -r c20-pendula-refReads.txt \
+  -e c20-pendula-error.txt \
+  --prefix pendula \
+  --iters 1000
+```
+
+### Analying data for *B*. *pubescens*
+
+```bash
+ebg alloSNP -f pendula-freqs.txt \
+  -p1 2 -p2 2 -n 130 -l 49021 \
+  -t c20-pubescens-totReads.txt \
+  -r c20-pubescens-refReads.txt \
+  -e c20-pubescens-error.txt \
+  --prefix pubescens \
+  --iters 100 \
+  --brent
 ```
