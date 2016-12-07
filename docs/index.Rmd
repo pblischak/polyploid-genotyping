@@ -1,0 +1,13 @@
+---
+title: "Polyploid Genotyping"
+author: "Paul Blischak"
+date: "December 7, 2016"
+output:
+  html_document:
+    theme: cosmo
+    highlight: pygments
+---
+
+```bash
+make && sudo make install
+```
