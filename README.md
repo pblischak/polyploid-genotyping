@@ -1,6 +1,6 @@
 ## `polyploid-genotyping`
 
-### ZENODO BADGE HERE
+[![DOI](https://zenodo.org/badge/75424744.svg)](https://zenodo.org/badge/latestdoi/75424744)
 
 This is the GitHub repository for the manuscript "SNP Genotyping and Analysis of Genetic Diversity in Polyploids", which is currently under peer review. The repo consists of four main folders:
 
