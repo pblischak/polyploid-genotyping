@@ -4,14 +4,13 @@
 
 This is the GitHub repository for the manuscript "SNP Genotyping and Analysis of Genetic Diversity in Polyploids", which is currently under peer review. The repo consists of four main folders:
 
- - `code/`: Code for performing simulations and for running analyses.
+ - `ebg/`: C++ source code for EM/ECM algorithms for genotyping with our models.
 
- - `data/`: the empirical data sets that were used in the manuscript.
+ - `Rcode/`: R and C++ code for performing simulations and for running analyses.
 
- - `doc/`: Figures and LaTeX file for the manuscript.
+ - `data/`: the empirical data sets for *Betula pendula* and *B*. *pubescens* that were used in the manuscript.
 
- - `supp/`: Figures and LaTeX file for the supplemental materials.
+ - `docs/`: Rmd and HTML files for GitHub pages site.
+
 
 More details on the contents of each folder can be found in their respective README files.
-
-The manuscript can be found as a preprint on bioRxiv: .
