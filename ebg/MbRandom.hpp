@@ -1,4 +1,4 @@
-// Modified by Paul Blischak (PDB) for PPGtk starting April 2016.
+// Modified by Paul Blischak (PDB) for ebg starting September 2016.
 
 /*!
  * \file
