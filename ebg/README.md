@@ -4,7 +4,7 @@
 Input data include (1) a matrix of total read counts mapping to each site for each individual,
 (2) a matrix of reference read counts mapping to each site for each individual, and
 (3) a vector of sequencing error values for each locus.
-Examples of each of these files can be found in the `data/` folder in the main GitHub repo and a walkthrough for how to analyze them is in the associated GitHub pages website.
+Examples of each of these files can be found in the `data/` folder in the main GitHub repo and a walkthrough for how to analyze them is in the associated [GitHub pages website](http://pblischak.github.io/polyploid-genotyping).
 Missing data are also allowed and should be given a value of `-9`. These counts and error values are usually found in VCF files as the allele depth (AD) field for genotypes and the QUAL field for each site.
 
 There is a `Makefile` that will compile the `ebg` executable. Simply type:
