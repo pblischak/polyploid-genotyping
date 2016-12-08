@@ -22,7 +22,7 @@ make && sudo make install
 
 Go to the `data/` folder in the `polyploid-genotyping` repo and look at the formatting of the of the input files for *Betula pendula* and *B*. *pubescens*. *Betula pendula* is a diploid and *B*. *pubescens* is an allotetraploid.
 
-### Analying data for *B*. *pendula*
+### Analyzing data for *B*. *pendula*
 
 ```bash
 ebg hwe -p 2 -n 34 -l 49021 \
@@ -33,7 +33,7 @@ ebg hwe -p 2 -n 34 -l 49021 \
   --iters 1000
 ```
 
-### Analying data for *B*. *pubescens*
+### Analyzing data for *B*. *pubescens*
 
 ```bash
 ebg alloSNP -f pendula-freqs.txt \
