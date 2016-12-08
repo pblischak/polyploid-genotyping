@@ -54,7 +54,7 @@ ebg hwe -p <ploidy> \
 The `diseq` model estimates genotypes assuming Hardy Weinberg equilibrium. You can run the model as follows:
 
 ```bash
-ebg hwe -p <ploidy> \
+ebg diseq -p <ploidy> \
   -n <num-individuals> \
   -l <num-loci> \
   -t <total-reads> \
@@ -67,11 +67,11 @@ ebg hwe -p <ploidy> \
 The `alloSNP` model estimates genotypes within the subgenomes of an allopolyploid using a reference panel of allele frequencies estimated separately for one of the parents. You can run the model as follows:
 
 ```bash
-ebg hwe -f <ref-panel-file>
+ebg alloSNP -f <ref-panel-file> \
   -n <num-individuals> \
   -l <num-loci> \
   -p1 <ploidy1> \
-  -p2 <ploidy2>
+  -p2 <ploidy2> \
   -t <total-reads> \
   -r <ref-reads> \
   -e <error-vals>
