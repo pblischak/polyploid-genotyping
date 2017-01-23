@@ -5,9 +5,11 @@ void mainUsage();
 void hweUsage();
 void diseqUsage();
 void alloSNPusage();
+void gatkUsage();
+void glUsage();
 
-#define VERSION "0.1.0-alpha"
-#define VERSIONDATE "November 2016"
+#define VERSION "0.2.0-alpha"
+#define VERSIONDATE "January 2017"
 
 #define MISSING -9
 #define BADLIK  -9999.999

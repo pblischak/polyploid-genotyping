@@ -69,8 +69,6 @@ void ModelHWE::em(){
 
     prevLogLik = currLogLik;
 
-
-
     if(!_quiet)
       std::cerr << "Step: " << j + 1 << "        ";
 
@@ -78,12 +76,10 @@ void ModelHWE::em(){
     mStep();
 
     currLogLik = calcLogLik();
-
     if(!_quiet)
       std::cerr << std::setprecision(16) << "logLik: " << currLogLik << "        " << "Diff: " << currLogLik - prevLogLik << std::endl;
 
     checkConvergence(convergence);
-
     if(convergence || fabs(currLogLik - prevLogLik) < 1e-8)
       break;
 
@@ -147,7 +143,6 @@ void ModelHWE::checkCommandLine(){
 void ModelHWE::checkConvergence(bool &con){
 
   int convergedLociCount = 0;
-
   for(int l = 0; l < _nLoci; l++){
 
     if(_convergedLoci[l])
@@ -156,7 +151,6 @@ void ModelHWE::checkConvergence(bool &con){
   }
 
   //std::cerr << "Percent convereged: " << convergedLociCount / (double) _nLoci << std::endl;
-
   if(convergedLociCount == _nLoci)
     con = 1;
 

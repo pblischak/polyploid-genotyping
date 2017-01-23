@@ -1,7 +1,7 @@
 # Makefile for compiling
 
 EXE = ebg
-OBJ = MbRandom.o ModelGeneric.o ModelHWE.o ModelDiseq.o ModelAlloSNP.o main.o
+OBJ = MbRandom.o ModelGeneric.o ModelHWE.o ModelDiseq.o ModelAlloSNP.o ModelGATK.o ModelGL.o main.o
 
 CXX = g++
 CXXFLAGS = -Wall -O3 -g -std=c++11 -march=native
@@ -11,10 +11,6 @@ CXXFLAGS = -Wall -O3 -g -std=c++11 -march=native
 $(EXE) : $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $(EXE) $^ $(LDFLAGS)
 	@printf "\nTo install ebg system-wide run: sudo make install\n\n"
-
-#linux : $(OBJ)
-#	$(CXX) $(CXXFLAGS) -L${BOOST_LIB} -Wl,-rpath=${BOOST_LIB} -o $(EXE) $^ $(LDFLAGS)
-#	@printf "\nTo install ppgtk system-wide run: sudo make install\n\n"
 
 $(OBJ) : %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
