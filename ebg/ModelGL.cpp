@@ -85,7 +85,7 @@ void ModelGL::checkCommandLine(){
   }
 
   if(errorCaught > 0){
-    gatkUsage();
+    glUsage();
     exit(EXIT_FAILURE);
   }
 
