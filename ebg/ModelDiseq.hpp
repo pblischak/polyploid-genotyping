@@ -27,6 +27,7 @@ private:
   static double calcPhiLogLik(double x);
   static double calcLogLik();
   void eStep();
+  void eStepTwo();
   void mStep();
   //void mStepAccel();
   void checkConvergence(bool &con);

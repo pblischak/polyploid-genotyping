@@ -2,6 +2,7 @@
 #include <string>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 #include <iomanip>
 #include <fstream>
 #include <stdlib.h>
@@ -76,7 +77,7 @@ void ModelDiseq::ecm(){
     if(!_quiet)
       std::cerr << "Step: " << j + 1 << "\t";
 
-    eStep();
+    eStepTwo();
     mStep();
 
     /*if(j >= 10){
@@ -399,6 +400,53 @@ void ModelDiseq::eStep(){
     }
   }
 
+}
+
+void ModelDiseq::eStepTwo(){
+  std::vector<double> tmp_exp(_ploidy + 1, 0.0);
+  double tmp_exp_sum = 0.0, phiConverted = 0.0, max_val = 0.0;
+  int i3d = 0; // index for 3D array stored as vector
+  bool print = 0;
+
+  for(int l = 0; l < _nLoci; l++){
+    for(int i = 0; i < _nInd; i++){
+
+      // Catch missing data and skip
+      if(_totReads[i * _nLoci + l] == MISSING)
+        continue;
+
+      tmp_exp_sum = 0.0;
+      phiConverted = 1.0 / _phi[i] - 1.0;
+
+      if(phiConverted > 1000)
+        phiConverted = 1000.0;
+
+      for(int a = 0; a <= _ploidy; a++){
+        i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
+        tmp_exp[a] = log(_gLiks[i3d]) + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted);
+        //std::cerr << tmp_exp[a] << "    " << _gLiks[i3d] << "    " << r->betaBinomPdf(_ploidy, a, _freqs[l] * _phi[i], (1 - _freqs[l]) * _phi[i]) << std::endl;
+      }
+
+      max_val = *std::max_element(tmp_exp.begin(), tmp_exp.end());
+
+      for(int a = 0; a <= _ploidy; a++)
+        tmp_exp_sum += exp(tmp_exp[a] - max_val);
+
+      for(int a = 0; a <= _ploidy; a++){
+        i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
+        _gExp[i3d] = exp(tmp_exp[a] - max_val - tmp_exp_sum);
+
+        if(print){
+        std::cout << i+1 << "    " << l+1 << "    "
+                  << a << "    " << r->betaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted) << "    "
+                  << tmp_exp[a] << "    " <<  _gExp[i3d] << "    "
+                  << phiConverted << "    " << _freqs[l] << std::endl;
+        }
+
+      }
+
+    }
+  }
 }
 
 void ModelDiseq::mStep(){
