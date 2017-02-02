@@ -6,6 +6,8 @@ This is the GitHub repository for the manuscript "SNP Genotyping and Analysis of
 
  - `ebg/`: C++ source code for EM/ECM algorithms for genotyping with our models.
 
+ - `helper-scripts/`: Perl and bash script for extracting allele depth info from a VCF file for use with `ebg`.
+
  - `Rcode/`: R and C++ code for performing simulations and for running analyses.
 
  - `data/`: the empirical data sets for *Betula pendula* and *B*. *pubescens* that were used in the manuscript.
