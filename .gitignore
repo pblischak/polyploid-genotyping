@@ -1,6 +1,7 @@
 ebg/*.o
 ebg/*.txt
 ebg/ebg
+ebg/dlib
 .DS_Store
 .Rhistory
 .RData

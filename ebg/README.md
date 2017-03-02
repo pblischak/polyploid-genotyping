@@ -34,6 +34,9 @@ ebg diseq -h
 
 # Help for the allopolyploid subgenome model
 ebg alloSNP -h
+
+# Help for the gatk-like model
+ebg gatk -h
 ```
 
 ### `hwe`

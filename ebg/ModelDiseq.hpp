@@ -12,9 +12,7 @@ public:
 
 private:
   // Member variables
-  static std::vector<double> _phi, _prevPhi, _perIndLogLik, _theta0Ind,
-                             _theta1Ind, _theta2Ind,
-                             _rInd, _vInd, _thetaPrimeInd;
+  static std::vector<double> _phi, _perIndLogLik;
   static int _currInd;
   static std::vector<bool> _convergedLoci, _convergedInd;
 
@@ -29,7 +27,7 @@ private:
   void eStep();
   void eStepTwo();
   void mStep();
-  //void mStepAccel();
+  /*void mStepTwo();*/
   void checkConvergence(bool &con);
 
 };
