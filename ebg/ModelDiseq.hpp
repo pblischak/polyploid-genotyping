@@ -27,7 +27,7 @@ private:
   void eStep();
   void eStepTwo();
   void mStep();
-  /*void mStepTwo();*/
+  void mStepTwo();
   void checkConvergence(bool &con);
 
 };

@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <fstream>
 #include <stdlib.h>
-//#include <dlib/optimization.h>
+#include <dlib/optimization.h>
 
 #include "ModelGeneric.hpp"
 #include "ModelDiseq.hpp"
@@ -18,7 +18,7 @@ std::vector<double> ModelDiseq::_phi, ModelDiseq::_perIndLogLik;
 int ModelDiseq::_currInd;
 std::vector<bool> ModelDiseq::_convergedInd, ModelDiseq::_convergedLoci;
 
-//using namespace dlib;
+using namespace dlib;
 
 ModelDiseq::ModelDiseq(int ac, char* av[]){
   _prefix = "diseq";
@@ -369,17 +369,20 @@ void ModelDiseq::mStep(){
   }
 }
 
-/*void ModelDiseq::mStepTwo(){
+void ModelDiseq::mStepTwo(){
   double prev = 0.0;
+  matrix<double, 1, 1> tmp_param_val;
   for(int l = 0; l < _nLoci; l++){
     if(_convergedLoci[l]){
       continue;
     } else {
       _currLoc = l;
       prev = _freqs[l];
+      tmp_param_val(0,0) = _freqs[l];
       find_min_box_constrained(bfgs_search_strategy(),
                                objective_delta_stop_strategy(1e-7),
-                               calcFreqLogLik, dlib::derivative(calcFreqLogLik), _freqs[l], 1.0e-100, 1.0 - 1.0e-100);
+                               calcFreqLogLik, dlib::derivative(calcFreqLogLik), tmp_param_val, 1.0e-100, 1.0 - 1.0e-100);
+      _freqs[l] = tmp_param_val(0,0);
       if(sqrt(pow(_freqs[l] - prev, 2)) < _stopVal)
         _convergedLoci[l] = 1;
     }
@@ -390,14 +393,16 @@ void ModelDiseq::mStep(){
     } else {
       _currInd = i;
       prev = _phi[i];
+      tmp_param_val(0,0) = _phi[i];
       find_min_box_constrained(bfgs_search_strategy(),
                                objective_delta_stop_strategy(1e-7),
-                               calcPhiLogLik, dlib::derivative(calcPhiLogLik), _phi[i], 1.0e-100, 1.0 - 1.0e-100);
+                               calcPhiLogLik, dlib::derivative(calcPhiLogLik), tmp_param_val, 1.0e-100, 1.0 - 1.0e-100);
+      _phi[i] = tmp_param_val(0,0);
       if(sqrt(pow(_phi[i] - prev, 2)) < _stopVal)
         _convergedInd[i] = 1;
     }
   }
-}*/
+}
 
 double ModelDiseq::calcLogLik(){
   int i3d = 0;
