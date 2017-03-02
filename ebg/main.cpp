@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#ifdef _OPENMP
+  #include <omp.h>
+#endif
 
 #include "MbRandom.hpp"
 #include "ModelGeneric.hpp"
@@ -14,50 +17,40 @@
 MbRandom *r = new MbRandom;
 
 int main(int argc, char* argv[]){
-
   std::string selectedModel = "none";
-
   if(argc < 2){
     std::cerr << "\nNot enough arguments.\n" << std::endl;
     mainUsage();
     exit(EXIT_FAILURE);
   }
-
   if(strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0){
     mainUsage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1],"-v") == 0 || strcmp(argv[1],"--version") == 0){
     std::cerr << "\nThis is ebg version " << VERSION << " (" << VERSIONDATE << ").\n" << std::endl;
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "hwe") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     hweUsage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "diseq") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     diseqUsage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "alloSNP") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     alloSNPusage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "gatk") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     gatkUsage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "gl") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     glUsage();
     exit(EXIT_SUCCESS);
   }
-
   if(strcmp(argv[1], "hwe") != 0 && strcmp(argv[1], "diseq") != 0 && strcmp(argv[1], "alloSNP") != 0 && strcmp(argv[1], "gatk") != 0 && strcmp(argv[1], "gl") != 0){
     std::cerr << "\nA valid model was not selected. The options are: hwe, diseq, alloSNP, gatk, and gl.\n" << std::endl;
     mainUsage();
@@ -65,11 +58,9 @@ int main(int argc, char* argv[]){
   } else {
     selectedModel = argv[1];
   }
-
   //if(strcmp(selectedModel.c_str(), "none") == 0){
   //  std::cerr << "\nA model was not selected. The options are: freqs, diseq, and alloSNP.\n" << std::endl;
   //} else
-
   if(argc <= 2){
     std::cerr << "Too few arguments.\n" << std::endl;
     mainUsage();
@@ -98,9 +89,7 @@ int main(int argc, char* argv[]){
     std::cerr << "\nThe selected model (" << selectedModel << ") is not a valid option.\n"
               << "Please choose one of the following: hwe, diseq, alloSNP, gatk, gl.\n" << std::endl;
   }
-
   return 0;
-
 }
 
 void mainUsage(){

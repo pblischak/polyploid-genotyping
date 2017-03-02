@@ -1,11 +1,12 @@
 # Makefile for compiling
-
 EXE = ebg
 OBJ = MbRandom.o ModelGeneric.o ModelHWE.o ModelDiseq.o ModelAlloSNP.o ModelGATK.o ModelGL.o main.o
-
 CXX = g++
-CXXFLAGS = -Wall -O3 -g -std=c++11 -march=native
-
+CXXFLAGS = -Wall -O3 -g -std=c++11
+OPENMP=no
+ifeq ($(strip $(OPENMP)), yes)
+        CXXFLAGS += -fopenmp
+endif
 .PHONY : clean install uninstall
 
 $(EXE) : $(OBJ)
@@ -17,7 +18,7 @@ $(OBJ) : %.o: %.cpp
 
 clean :
 	@printf "\n Removing object (*.o) files and executable...\n\n"
-	@rm -i $(OBJ) $(TXT_FILES) $(EXE)
+	@rm $(OBJ) $(EXE)
 
 install :
 	@printf "\nCopying executable to /usr/local/bin...\n\n"
