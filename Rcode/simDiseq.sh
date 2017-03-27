@@ -6,7 +6,7 @@ for i in 25 50 100
 do
   for p in 6 8
   do
-    for c in 5 10 20
+    for c in 2 5 10 20 30 40
     do
       for f in 10 25 50 75 90
       do

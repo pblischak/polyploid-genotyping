@@ -1,40 +1,36 @@
 ## `Rcode/`
 
 These are the R, C++, and bash scripts that were used to conduct the simulation study for our manuscript.
-To run them, you will need to have the R package `Rcpp` installed.
+To run them, you will need to have the R package `Rcpp` installed. They take a pretty long time to run (several hours),
+so be aware when trying to redo them.
 
 ### `diseq` simulations
 
-Create a folder called `simDiseq/`, then execute the bash script `simDiseq.sh`:
+Execute the bash script `simDiseq.sh`:
 
 ```bash
-# Make folder
-mkdir simDiseq
-
 # run simDiseq bash script
 bash simDiseq.sh
+
+# change into the simDiseq/ directory and analyze the data with ebg
+cd simDiseq/
+bash runDiseq.sh      # Analyze with the diseq model
+bash runDiseqGATK.sh  # Analyze with the gatk model
+bash runDiseqHWE.sh   # Analyze with the hwe model
 ```
 
 ### `alloSNP` simulations
 
-Create a folder called `simAlloSNP/`, then execute the bash script `simAlloSNP.sh`:
+Execute the bash script `simAlloSNP.sh`:
 
 ```bash
-# Make folder
-mkdir simAlloSNP
-
-# run simDiseq bash script
+# run simAlloSNP bash script
 bash simAlloSNP.sh
-```
 
-### `alloSNPdrift` simulations
-
-Create a folder called `simAlloSNPdrift/`, then execute the bash script `simAlloSNPdrift.sh`:
-
-```bash
-# Make folder
-mkdir simAlloSNPdrift
-
-# run simDiseq bash script
-bash simAlloSNPdrift
+# change into the simAlloSNP/ directory and analyze the data with ebg
+cd simAlloSNP/
+bash runAlloSNP.sh       # Analyze with the alloSNP model
+bash runAlloSNPbrent.sh  # Analyze with the alloSNP model EM+Brent algorithm
+bash runAlloSNPhwe.sh    # Analyze with the hwe model
+bash runAlloSNPgatk.sh   # Analyze with the gatk model
 ```
