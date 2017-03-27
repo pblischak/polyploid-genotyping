@@ -116,8 +116,8 @@ void ModelDiseq::printOutput(){
       phiConverted = 1.0 / _phi[i] - 1.0;
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        tmp_val[a] = _gLiks[i3d] * r->betaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1 - _freqs[l]) * phiConverted);
-        tmp_val_sum += tmp_val[a];
+        tmp_val[a] = _gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1 - _freqs[l]) * phiConverted);
+        tmp_val_sum += exp(tmp_val[a]);
       }
       for(int a = 0; a <= _ploidy; a++){
         g_post_prob[a] = tmp_val[a]/tmp_val_sum;
