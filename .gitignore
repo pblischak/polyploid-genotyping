@@ -1,6 +1,8 @@
 ebg/*.o
 ebg/*.txt
 ebg/ebg
+ebg/Sim*
+ebg/sim*
 .DS_Store
 .Rhistory
 .RData

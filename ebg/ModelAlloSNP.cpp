@@ -113,8 +113,6 @@ void ModelAlloSNP::em(){
 
   }
 
-
-
 }
 
 void ModelAlloSNP::printOutput(){
