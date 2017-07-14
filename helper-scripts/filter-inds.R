@@ -1,3 +1,5 @@
+#!/usr/bin/Rscript
+
 # Return a logical vector specifying if a column is to be included (TRUE)
 # or excluded (FALSE)
 get_missing <- function(col, cutoff){
