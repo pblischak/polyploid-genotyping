@@ -3,6 +3,7 @@ ebg/*.txt
 ebg/ebg
 ebg/Sim*
 ebg/sim*
+ebg/dlib
 .DS_Store
 .Rhistory
 .RData
