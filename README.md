@@ -7,7 +7,7 @@ This is the GitHub repository for the manuscript "SNP genotyping and parameter e
 
  - `ebg/`: C++ source code for EM/ECM algorithms for genotyping with our models.
 
- - `helper-scripts/`: Python, Perl, R, and Bash script for extracting and filtering allele depth info from a VCF file for use with `ebg`.
+ - `helper-scripts/`: Python, Perl, R, and Bash scripts for extracting and filtering allele depth info from a VCF file for use with `ebg`.
 
  - `Rcode/`: R and C++ code for performing simulations and for running analyses.
 
