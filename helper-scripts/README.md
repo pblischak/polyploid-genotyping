@@ -1,27 +1,37 @@
-Scripts for filtering a VCF file and converting to read count matrices using
-[VCFtools](https://vcftools.github.io/index.html) and a simple perl script (`read-counts-from-vcf.pl`).
-The perl script takes input from `stdin` and is run with the following options passed to it (in order):
+These are the Python, R, and Bash scripts that were used to process the data files that
+were generated as part of our manuscript. They mostly involve filtering and processing VCF files.
+The Bash scripts typically also call external programs, so make sure that you have them installed:
 
-```perl
-perl read-counts-from-vcf.pl <total-reads-file> <alt-reads-file> <allele-depth-position> <min-depth-filter>
-```
+ - [VCFtools](https://vcftools.github.io/index.html)
+ - [BWA](http://bio-bwa.sourceforge.net/)
+ - [SAMtools](http://www.htslib.org/doc/samtools.html)
+ - [GATK](https://software.broadinstitute.org/gatk/)
+ - [Picard](https://broadinstitute.github.io/picard/)
 
- - `total-reads-file`: the name to be given to the total read count file.
- - `alt-reads-file`: the name to be given to the alternative read count file.
- - `allele-depth-position`: the position of the allele depth information in the genotype field for the VCF file.
- - `min-depth-filter`: the minimum number of reads for including read count data.
+We used Python v2.7.13 and R v3.3.2.
 
-A typical use case would be to filter a VCF file for biallelic sites only, as well as applying whatever depth and quality filters
-you would like to add. Using the `--recode` and `--stdout` flags with VCFtools will generate a new VCF file that is
-printed to `stdout` that we can then pipe (`|`) into the perl script.
+### Scripts
 
-```bash
-vcftools --gzvcf input.vcf.gz --max-alleles 2 --min-alleles 2 -minDP 5 --max-missing 0.5 \
-         --recode --stdout | perl read-counts-from-vcf.pl tot.txt alt.txt 2 5
-```
+The Bash scripts are included here as examples to show the commands that we used to process our data. They may not work for you "out of the box". The Python and R scripts should work for processing VCF files and all use a command line parsing library (argparse). To see the script options, run it with a `-h` flag.
 
-This command takes a gzipped VCF file, filters for biallelic sites, includes individuals with less than 50% missing data,
-applies a minimum depth criterion and then prints a new VCF file to `stdout`. This new VCF file is piped as input to the perl
-script, which prints the total and alternative read count depths for all individuals and sites to the files `tot.txt` and `alt.txt`,
-respectively. The `2` tells the script that the allele depth (AD) field is the second entry in the genotype information encoded within the VCF file.
-The last number is another read depth filter for the AD field, which ensures that all included sites have a minimum total number of reads greater than or equal to `5`.
+**Analyses for _Andropogon gerargii_**
+
+ - `andropogon-read-counts.sh`: Bash scripts that wraps a call to VCFtools and the Python script `read-counts-from-vcf.pl`.
+ - `read-counts-from-vcf.pl`: Old Perl script that extracts the allele depth (AD) field from a VCF file and writes a file for the total reads and the number of alternative allele reads.
+ - `filter-inds.R`: R script to filter sites output by `read-counts-from-vcf.pl` based on the number of missing individuals.
+ ```
+ Rscript filter-inds.R <tot-reads> <alt-reads> <%-missing> <transpose?> <missing-string>
+ ```
+
+**Analyses for _Betula_ species using GATK**
+
+ - `index.sh`: Bash script to index the reference genome of *Betula nana* using bwa, SAMtools, and Picard.
+ - `map_bwa.sh`: Bash script that loops through fastq files to map to the *Betaula* reference genome using BWA, followed by processing with SAMtools.
+ - `add_read_groups.sh`: Bash script to add read group information with Picard.
+ - `run_genotyper.sh`: Bash script to run the GATK UnifiedGenotyper on BAM files with read group information added by Picard.
+ - `filter.vcf.R`: R script to filter a VCF file based on variant quality (QUAL), biallelic SNPs, sequencing read depth per genotype, and amount of missing data per site. Replaces the use of VCFtools and the `filter-inds.R` script.
+ - `intersect-vcf.R`: Finds the shared variants between two VCF files and prints them to new files.
+ - `read-counts-from-vcf.py`: Python script that replaces the old Perl version with a better interface and prints the output files in the correct orientation (doesn't need to be transposed).
+ - `gt-from-vcf.py`: Python script to extract the count of alternative alleles in the GT field for each individual at each site.
+ - `run_mpileup.sh`: Bash script to generate a pileup file from input BAM files.
+ - `per-locus-err.py`: Extract the average PHRED-scaled base qualities for each site from a pileup file (default=0.01).
