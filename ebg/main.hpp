@@ -8,7 +8,7 @@ void alloSNPusage();
 void gatkUsage();
 void glUsage();
 
-#define VERSION "0.3.0-alpha"
+#define VERSION "0.3.1-alpha"
 #define VERSIONDATE "July 2017"
 
 #define MISSING -9

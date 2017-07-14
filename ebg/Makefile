@@ -5,7 +5,7 @@ OBJ = MbRandom.o ModelGeneric.o \
 			ModelAlloSNP.o ModelGATK.o \
 			ModelGL.o main.o
 CXX = g++
-CXXFLAGS = -Wall -O3 -g -std=c++11 -I.
+CXXFLAGS = -Wall -O3 -g -std=c++11
 OPENMP=no
 ifeq ($(strip $(OPENMP)), yes)
         CXXFLAGS += -fopenmp

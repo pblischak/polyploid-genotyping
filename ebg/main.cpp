@@ -113,7 +113,7 @@ void hweUsage(){
             << "  -l [--num-loci]     <int>        Number of loci" << std::endl
             << "  -p [--ploidy]       <int>        Ploidy level" << std::endl
             << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
-            << "  -r [--ref-reads]    <string>     Reference read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
             << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
             << "\nAdditional options:" << std::endl
             << "  --tol               <double>     Tolerance for Brent's method (default = 1e-10)" << std::endl
@@ -130,7 +130,7 @@ void diseqUsage(){
             << "  -l [--num-loci]     <int>        Number of loci" << std::endl
             << "  -p [--ploidy]       <int>        Ploidy level" << std::endl
             << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
-            << "  -r [--ref-reads]    <string>     Reference read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
             << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
             << "\nAdditional options:" << std::endl
             << "  --tol               <double>     Tolerance for Brent's method (default = 1e-10)" << std::endl
@@ -149,7 +149,7 @@ void alloSNPusage(){
             << "  -p1 [--ploidy1]     <int>        Ploidy level of subgenome one" << std::endl
             << "  -p2 [--ploidy2]     <int>        Ploidy level of subgenome two" << std::endl
             << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
-            << "  -r [--ref-reads]    <string>     Reference read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
             << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
             << "\nAdditional options:" << std::endl
             << "  --tol               <double>     Tolerance for Brent's method (default = 1e-10)" << std::endl
@@ -167,7 +167,7 @@ void gatkUsage(){
             << "  -l [--num-loci]     <int>        Number of loci" << std::endl
             << "  -p [--ploidy]       <int>        Ploidy level" << std::endl
             << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
-            << "  -r [--ref-reads]    <string>     Reference read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
             << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
             << "\nAdditional options:" << std::endl
             << "  --prefix            <string>     Prefix for output files (default = gatk)" << std::endl
@@ -182,7 +182,7 @@ void glUsage(){
             << "  -l [--num-loci]     <int>        Number of loci" << std::endl
             << "  -p [--ploidy]       <int>        Ploidy level" << std::endl
             << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
-            << "  -r [--ref-reads]    <string>     Reference read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
             << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
             << "\nAdditional options:" << std::endl
             << "  --prefix            <string>     Prefix for output files (default = gl)" << std::endl

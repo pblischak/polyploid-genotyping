@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <fstream>
 #include <stdlib.h>
-#include <dlib/optimization.h>
+//#include <dlib/optimization.h>
 
 #include "ModelGeneric.hpp"
 #include "ModelDiseq.hpp"
@@ -18,7 +18,7 @@ std::vector<double> ModelDiseq::_phi, ModelDiseq::_perIndLogLik;
 int ModelDiseq::_currInd;
 std::vector<bool> ModelDiseq::_convergedInd, ModelDiseq::_convergedLoci;
 
-using namespace dlib;
+//using namespace dlib;
 
 ModelDiseq::ModelDiseq(int ac, char* av[]){
   _prefix = "diseq";
@@ -31,7 +31,7 @@ ModelDiseq::ModelDiseq(int ac, char* av[]){
       _ploidy = atoi(av[i + 1]);
     } else if(strcmp(av[i],"--total-reads") == 0 || strcmp(av[i], "-t") == 0){
       _totalReadsFile = av[i + 1];
-    } else if(strcmp(av[i],"--ref-reads") == 0 || strcmp(av[i], "-r") == 0){
+    } else if(strcmp(av[i],"--alt-reads") == 0 || strcmp(av[i], "-a") == 0){
       _refReadsFile = av[i + 1];
     } else if(strcmp(av[i],"--prefix") == 0){
       _prefix = av[i + 1];
@@ -165,7 +165,7 @@ void ModelDiseq::checkCommandLine(){
     errorCaught++;
   }
   if(strcmp(_refReadsFile.c_str(), "none") == 0){
-    std::cerr << "\nMissing or invalid option for -r [--ref-reads].\n";
+    std::cerr << "\nMissing or invalid option for -a [--alt-reads].\n";
     errorCaught++;
   }
   if(strcmp(_errorRatesFile.c_str(), "none") == 0) {
@@ -369,6 +369,7 @@ void ModelDiseq::mStep(){
   }
 }
 
+/*
 void ModelDiseq::mStepTwo(){
   double prev = 0.0;
   matrix<double, 1, 1> tmp_param_val;
@@ -403,6 +404,7 @@ void ModelDiseq::mStepTwo(){
     }
   }
 }
+*/
 
 double ModelDiseq::calcLogLik(){
   int i3d = 0;

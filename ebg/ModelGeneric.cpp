@@ -52,7 +52,7 @@ void ModelGeneric::getData(){
       _refReads.push_back(readVal);
     }
   } else {
-    std::cerr << "Could not open reference reads file: " << _refReadsFile << std::endl;
+    std::cerr << "Could not open ALT allele reads file: " << _refReadsFile << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -82,7 +82,7 @@ void ModelGeneric::checkInput(){
   }
 
   if(_refReads.size() != (size_t) (_nInd * _nLoci)){
-    std::cerr << "The size of the reference reads matrix is incorrect (" <<  _refReads.size() << " not equal to num-ind * num-loci)." << std::endl;
+    std::cerr << "The size of the ALT allele reads matrix is incorrect (" <<  _refReads.size() << " not equal to num-ind * num-loci)." << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -99,7 +99,7 @@ void ModelGeneric::checkInput(){
   }
 
   if(!_quiet)
-    std::cerr << "            Good (" << missing/total * 100.0 <<" percent missing data)"<< std::endl;
+    std::cerr << "            Good (" << missing/total * 100.0 <<" % missing data)"<< std::endl;
 
 }
 

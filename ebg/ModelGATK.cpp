@@ -25,7 +25,7 @@ ModelGATK::ModelGATK(int ac, char* av[]){
       _ploidy = atoi(av[i + 1]);
     } else if(strcmp(av[i],"--total-reads") == 0 || strcmp(av[i], "-t") == 0){
       _totalReadsFile = av[i + 1];
-    } else if(strcmp(av[i],"--ref-reads") == 0 || strcmp(av[i], "-r") == 0){
+    } else if(strcmp(av[i],"--alt-reads") == 0 || strcmp(av[i], "-a") == 0){
       _refReadsFile = av[i + 1];
     } else if(strcmp(av[i],"--prefix") == 0){
       _prefix = av[i + 1];
@@ -80,7 +80,7 @@ void ModelGATK::checkCommandLine(){
   }
 
   if(strcmp(_refReadsFile.c_str(), "none") == 0){
-    std::cerr << "\nMissing or invalid option for -r [--ref-reads].\n";
+    std::cerr << "\nMissing or invalid option for -a [--alt-reads].\n";
     errorCaught++;
   }
 
