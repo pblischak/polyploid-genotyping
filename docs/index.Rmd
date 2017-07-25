@@ -4,50 +4,203 @@ author: "Paul Blischak"
 date: 
 output:
   html_document:
-    theme: cosmo
+    theme: lumen
     highlight: pygments
 ---
 
-# **In the works...**
+<style>
+p {
+  font-size: 125%;
+}
+
+li {
+  font-size: 125%;
+}
+
+pre {
+ font-size: 110%;
+}
+</style>
 
 *Last updated: `r format(Sys.time(), '%d %B, %Y')`*
 
 ----
 
-# Compiling `ebg`
+# Overview
 
-The software to infer genotypes is called `ebg` and can be found in the `ebg` folder in the main `polyploid-genotyping` repo on GitHub. Inside the `ebg` folder you can compile the software from source using the Makefile. We have successfully compiled the program using GCC and Clang (Mac OSX). No external libraries are required.
+This is the code repository for our paper and software for genotyping and parameter estimation in polyploids. The main program, `ebg`, is written in C++ and can be found in the `ebg/` folder. Additional code for other parts of the paper can be found in the following folders:
 
-```bash
+- `data/`: example data files for two species of birch trees (*Betula pendula* [2N] and *Betula pubescens* [4N]), and a mixed-ploidy grass species (*Andropogon gerardii* [6N and 9N])
+- `helper-scripts`: Python, Perl, R, and Bash scripts to work with VCF and SAMtools pileup files to filter variants and prepare input files for analysis with `ebg`.
+- `Rcode`: R, C++, and Bash code that was used for our simulation study.
+
+Below is a list of the models that are implemented in our software, as well as a link to the paper describing the theory behind them.
+
+**Models**:
+
+ - `hwe`: infer genotypes and allele frequencies assuming Hardy Weinberg equilirbrium.
+ - `diseq`: infer genotypes, allele frequencies, and individual inbreeding coefficients using
+            a beta-binomial *F*-model.
+ - `alloSNP`: separately infer genotypes within two subgenomes of an allopolyploids.
+              Allele frequencies for subgenome one are required as a reference, we infer
+              the allele frequency in subgenome two.
+ - `gatk`: infer genotypes with minimal assumptions. This model treats all genotypes as
+           equally likely.
+
+**Paper**:
+
+ - Blischak PD, Kubatko LS, and Wolfe AD. In review. SNP genotyping and parameter estimation in
+   polyploids using low-coverage sequencing data. bioRxiv doi: 10.1101/120261. 
+   [<a href="http://www.biorxiv.org/content/early/2017/07/24/120261" target="_blank">link</a>]
+
+# Obtaining and compiling `ebg`
+
+The software to infer genotypes and model parameters is called `ebg` and can be found in the `ebg` folder in the main `polyploid-genotyping` repo on GitHub. Inside the `ebg` folder you can compile the software from source using the Makefile. We have successfully compiled the program using GCC and Clang (Mac OSX). No external libraries are required.
+
+```
+# Clone from GitHub
+git clone https://github.com/pblischak/polyploid-genotyping.git
+
+# Change into the ebg directory
+cd polyploid-genotyping/ebg
+
+# Compile and install ebg
 make && sudo make install
 ```
 
-# *Andropogon gerardii*
+# Input data formats
 
-# *Betula pendula*
+There are three input files that are necessary to run an analysis with `ebg` (four if you are using the `alloSNP` model). 
+The read count data files (total and alternative allele read counts) should be in plain text files as tab delimited matrices with individuals as rows and loci as columns. The per locus error rates files should be a single column with the error value listed for each locus on one line.
 
-Go to the `data/` folder in the `polyploid-genotyping` repo and look at the formatting of the of the input files for *Betula pendula* and *B*. *pubescens*. *Betula pendula* is a diploid and *B*. *pubescens* is an allotetraploid.
+## Total reads
 
-```bash
-ebg hwe -p 2 -n 34 -l 49021 \
-  -t c20-pendula-totReads.txt \
-  -r c20-pendula-refReads.txt \
-  -e c20-pendula-error.txt \
-  --prefix pendula \
-  --iters 1000
+```
+24  12  4  8  46  ...  7
+2  14  57  29  -9  ...  78
+.
+.
+.
+-9  68  -9  3  8  ...  5
 ```
 
-# *Betula pubescens*
+## Alternative allele reads
 
-```bash
-ebg alloSNP -f pendula-freqs.txt \
-  -p1 2 -p2 2 -n 130 -l 49021 \
-  -t c20-pubescens-totReads.txt \
-  -r c20-pubescens-refReads.txt \
-  -e c20-pubescens-error.txt \
-  --prefix pubescens \
-  --iters 100 \
-  --brent
+```
+10  0  2  7  24  ...  0
+1  3  54  23  -9  ...  75
+.
+.
+.
+-9  31  -9  1  2  ...  0
 ```
 
-# Analyzing raw sequence data in *Betula* with `ebg` and GATK
+## Per locus error rates
+
+```
+0.00254
+0.00089
+.
+.
+.
+8e-5
+```
+
+## Reference allele frequencies (`alloSNP` model only)
+
+If you are running the `alloSNP` model, you will need a reference panel of allele frequencies for the genotypes in subgenomes one. This should be formated in the same way as the per locus error rates file: one allele frequency per locus listed on separate lines.
+
+```
+0.578
+0.079
+.
+.
+.
+0.233
+```
+
+# Running analyses
+
+Analyses for each model can be run from the command line by calling the `ebg` executable. The options for each of the models can be viewed by typing: `ebg <model> -h`. Below we have given an example of what should be typed at the command line to run each model.
+
+## `hwe`
+
+```
+ebg hwe -t tot-reads.txt \
+        -a alt-reads.txt \
+        -e error.txt \
+        -p 4 \
+        --iters 1000 \
+        --prefix hwe-test 
+```
+
+## `diseq`
+
+```
+ebg diseq -t tot-reads.txt \
+          -a alt-reads.txt \
+          -e error.txt \
+          -p 4 \
+          --iters 1000 \
+          --prefix diseq-test
+```
+
+## `alloSNP`
+
+```
+ebg alloSNP -f reference-freqs.txt \
+            -t tot-reads.txt \
+            -a alt-reads.txt \
+            -e error.txt \
+            -p1 2 \
+            -p2 4 \
+            --iters 1000 \
+            --prefix alloSNP-test
+```
+
+## `gatk`
+
+```
+ebg gatk -t tot-reads.txt \
+         -a alt-reads.txt \
+         -e error.txt \
+         -p 4 \
+         --iters 1000 \
+         --prefix gatk-test
+```
+
+# Output files
+
+The output files written for each analysis are tab delimited text files with parameter estimates,
+genotypes, and updated genotype probabilities.
+
+- `hwe`: estimated allele frequencies (hwe-freqs.txt), estimated genotypes (hwe-genos.txt),
+         and updated genotype probabilities (hwe-PL.txt).
+- `diseq`: estimated allele frequencies (diseq-freqs.txt), 
+           estimated inbreeding coefficients (diseq-F.txt), 
+           estimated genotypes (diseq-genos.txt),
+           and updated genotype probabilities (diseq-PL.txt).
+- `alloSNP`: estimated allele frequencies for subgenome two (alloSNP-freqs2.txt),
+             estimated genotypes for subgenome one (alloSNP-g1.txt),
+             estimated genotypes for subgenome two (alloSNP-g2.txt),
+             and joint, updated genotype probabilities for subgenomes 
+             one and two (alloSNP-PL.txt).
+
+Updated genotype probabilities are specified in a minimal, VCF-like matrix with loci as
+rows and individuals as columns. Each entry is a comma separated list for the different possible genotype values (the number of copies of the alternative allele). The files are called <model>-PL.txt because the updated probabilities are on the PHRED scale:
+
+$$
+PL = -10 \times \log_{10}[P(\text{genotype}|\text{data})]
+$$
+
+The updated probabilities for the `alloSNP` model are the joint probabilities for the genotypes in subgenomes one and two. 
+The joint distribution has $(\text{ploidy}_1 + 1) \times (\text{ploidy}_2+1)$ entries that are listed in this order:
+
+$$
+(0,0),(0,1),(0,2),\dots,(0,\text{ploidy}_2),\\
+(1,0),(1,1),(1,2),\dots,(1,\text{ploidy}_2),\\
+\ldots,\\
+(\text{ploidy}_1,0),(\text{ploidy}_1,1),(\text{ploidy}_1,2),\ldots,(\text{ploidy}_1,\text{ploidy}_2)
+$$
+
+These genotype probabilities are included so that downstream analyses can include genotype uncertainty (e.g., estimates of heterozygosity, $F_{ST}$, etc.).
