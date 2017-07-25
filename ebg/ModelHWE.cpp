@@ -228,14 +228,18 @@ void ModelHWE::mStepBrent(){
 }
 
 void ModelHWE::printOutput(){
+  std::cerr << "Writing output files...";
   std::string genosFile = _prefix + "-genos.txt";
   std::string freqsFile = _prefix + "-freqs.txt";
+  std::string plFile = _prefix + "-PL.txt";
   std::ofstream genosStream;
   genosStream.open(genosFile, std::ios::out);
   std::ofstream freqsStream;
   freqsStream.open(freqsFile, std::ios::out);
+  std::ofstream plStream;
+  plStream.open(plFile, std::ios::out);
   std::vector<double> tmp_val(_ploidy+1, 0.0), g_post_prob(_ploidy+1, 0.0);
-  double tmp_val_sum = 0.0;
+  double tmp_val_sum = 0.0, tmp_PL = 0.0;
   std::vector<int> genotypes(_nInd * _nLoci, -9);
   int i3d = 0, i2d = 0;
   for(int l = 0; l < _nLoci; l++){
@@ -253,9 +257,20 @@ void ModelHWE::printOutput(){
       }
       for(int a = 0; a <= _ploidy; a++){
         g_post_prob[a] = tmp_val[a]/tmp_val_sum;
+        tmp_PL = -10 * log10(g_post_prob[a]);
+        if(tmp_PL == -0){
+          plStream << -1 * tmp_PL;
+        } else {
+          plStream << tmp_PL;
+        }
+        if(a >= 0 && a < _ploidy){
+          plStream << ",";
+        }
       }
+      plStream << "\t";
       genotypes[i2d] = gMax(g_post_prob);
     }
+    plStream << std::endl;
   }
   for(int i = 0; i < _nInd; i++){
     for(int l = 0; l < _nLoci; l++){
@@ -267,6 +282,8 @@ void ModelHWE::printOutput(){
 
   for(int l = 0; l < _nLoci; l++)
     freqsStream << _freqs[l] << std::endl;
+
+  std::cerr << "Done." << std::endl;
 }
 
 double ModelHWE::calcLogLik(){

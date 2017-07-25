@@ -116,22 +116,23 @@ void ModelAlloSNP::em(){
 }
 
 void ModelAlloSNP::printOutput(){
-
+  std::cerr << "Writing output files...";
   std::string gOneFile = _prefix + "-g1.txt";
   std::string gTwoFile = _prefix + "-g2.txt";
   std::string freqsTwoFile = _prefix + "-freqs2.txt";
+  std::string plFile = _prefix + "-PL.txt";
 
   std::ofstream gOneStream;
   gOneStream.open(gOneFile, std::ios::out);
-
   std::ofstream gTwoStream;
   gTwoStream.open(gTwoFile, std::ios::out);
-
   std::ofstream freqsTwoStream;
   freqsTwoStream.open(freqsTwoFile, std::ios::out);
+  std::ofstream plStream;
+  plStream.open(plFile, std::ios::out);
 
   std::vector<double> tmp_val((_ploidy1 + 1)*(_ploidy2 + 1), 0.0), g_post_prob((_ploidy1 + 1)*(_ploidy2 + 1), 0.0);
-  double tmp_val_sum = 0.0;
+  double tmp_val_sum = 0.0, tmp_PL = 0.0;
   std::vector<int> genotypes1(_nInd * _nLoci, -9), genotypes2(_nInd * _nLoci, -9), res(2);
   int i3d = 0, i2d = 0, i2d2 = 0;
 
@@ -162,14 +163,23 @@ void ModelAlloSNP::printOutput(){
         for(int a2 = 0; a2 <= _ploidy2; a2++){
           i2d2 = a1 * (_ploidy2 + 1) + a2;
           g_post_prob[i2d2] = tmp_val[i2d2] / tmp_val_sum;
+          tmp_PL = -10 * log10(g_post_prob[i2d2]);
+          if(tmp_PL == -0){
+            plStream << -1 * tmp_PL;
+          } else {
+            plStream << tmp_PL;
+          }
+          if(((a1+1) * (a2+1)) < ((_ploidy1+1) * (_ploidy2+1))){
+            plStream << ",";
+          }
         }
       }
-
+      plStream << "\t";
       gMax2(g_post_prob, _ploidy1 + 1, _ploidy2 + 1, res);
       genotypes1[i2d] = res[0];
       genotypes2[i2d] = res[1];
-
     }
+    plStream << std::endl;
   }
 
   for(int i = 0; i < _nInd; i++){
@@ -185,6 +195,7 @@ void ModelAlloSNP::printOutput(){
   for(int l = 0; l < _nLoci; l++)
     freqsTwoStream << _freqs2[l] << std::endl;
 
+  std::cerr << "Done." << std::endl;
 }
 
   /****************************/
