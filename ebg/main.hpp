@@ -8,8 +8,8 @@ void alloSNPusage();
 void gatkUsage();
 void glUsage();
 
-#define VERSION "0.3.1-alpha"
-#define VERSIONDATE "July 2017"
+#define VERSION "0.3.2-alpha"
+#define VERSIONDATE "September 2018"
 
 #define MISSING -9
 #define BADLIK  -9999.999
