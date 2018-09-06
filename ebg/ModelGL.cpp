@@ -113,7 +113,7 @@ void ModelGL::printOutput(){
     for(int l = 0; l < _nLoci; l++){
       i2d = i * _nLoci + l;
 
-      if(_totReads[i2d] == MISSING){
+      if(_totReads[i][l] == MISSING){
         genosStream   << "-9\t";
         logDiffStream << "-9\t";
         continue;
@@ -121,11 +121,11 @@ void ModelGL::printOutput(){
       for(int a = 0; a <= _ploidy; a++){
         gEpsilon = f_epsilon(a, _ploidy, _errRates[l]);
         if(a == 0){
-          tmp_g[a] = r->lnBinomPdf(_totReads[i2d], _refReads[i2d], gEpsilon);
+          tmp_g[a] = r->lnBinomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           curr_max = 0;
           curr_max_prob = tmp_g[a];
         } else {
-          tmp_g[a] = r->lnBinomPdf(_totReads[i2d], _refReads[i2d], gEpsilon);
+          tmp_g[a] = r->lnBinomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           if(tmp_g[a] > curr_max_prob){
             curr_max = a;
             curr_max_prob = tmp_g[a];

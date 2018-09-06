@@ -133,7 +133,13 @@ void ModelAlloSNP::printOutput(){
 
   std::vector<double> tmp_val((_ploidy1 + 1)*(_ploidy2 + 1), 0.0), g_post_prob((_ploidy1 + 1)*(_ploidy2 + 1), 0.0);
   double tmp_val_sum = 0.0, tmp_PL = 0.0;
-  std::vector<int> genotypes1(_nInd * _nLoci, -9), genotypes2(_nInd * _nLoci, -9), res(2);
+  std::vector<int> res(2);
+  std::vector< std::vector<int> > genotypes1, genotypes2;
+  genotypes1.resize(_nInd), genotypes2.resize(_nInd);
+  for(int i = 0; i < _nInd; i++){
+    genotypes1[i].resize(_nLoci, -9);
+    genotypes2[i].resize(_nLoci, -9);
+  }
   int i3d = 0, i2d = 0, i2d2 = 0;
 
   for(int l = 0; l < _nLoci; l++){
@@ -141,7 +147,7 @@ void ModelAlloSNP::printOutput(){
       i2d = i * _nLoci + l;
 
       // Catch missing data and skip
-      if(_totReads[i2d] == MISSING)
+      if(_totReads[i][l] == MISSING)
         continue;
 
       tmp_val_sum = 0.0;
@@ -151,8 +157,8 @@ void ModelAlloSNP::printOutput(){
           i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + (a1 + a2);
           i2d2 = a1 * (_ploidy2 + 1) + a2;
 
-          tmp_val[i2d2] = _gLiks[i3d] * (r->binomPdf(_ploidy1, a1, _freqs1[l])
-                                      *  r->binomPdf(_ploidy2, a2, _freqs2[l]));
+          tmp_val[i2d2] = _gLiks[l][i][a1+a2] * (r->binomPdf(_ploidy1, a1, _freqs1[l])
+                                              *  r->binomPdf(_ploidy2, a2, _freqs2[l]));
 
           tmp_val_sum += tmp_val[i2d2];
 
@@ -176,8 +182,8 @@ void ModelAlloSNP::printOutput(){
       }
       plStream << "\t";
       gMax2(g_post_prob, _ploidy1 + 1, _ploidy2 + 1, res);
-      genotypes1[i2d] = res[0];
-      genotypes2[i2d] = res[1];
+      genotypes1[i][l] = res[0];
+      genotypes2[i][l] = res[1];
     }
     plStream << std::endl;
   }
@@ -185,8 +191,8 @@ void ModelAlloSNP::printOutput(){
   for(int i = 0; i < _nInd; i++){
     for(int l = 0; l < _nLoci; l++){
       i2d = i * _nLoci + l;
-      gOneStream << genotypes1[i2d] << "\t";
-      gTwoStream << genotypes2[i2d] << "\t";
+      gOneStream << genotypes1[i][l] << "\t";
+      gTwoStream << genotypes2[i][l] << "\t";
     }
     gOneStream << std::endl;
     gTwoStream << std::endl;
@@ -280,8 +286,25 @@ void ModelAlloSNP::checkCommandLine(){
 void ModelAlloSNP::initParams(){
 
   _ploidy = _ploidy1 + _ploidy2;
-  _gExp.resize(_nLoci * _nInd * (_ploidy1 + 1) * (_ploidy2 + 1));
-  _gLiks.resize(_nLoci * _nInd * (_ploidy + 1));
+  _gExp4D.resize(_nLoci);
+  for(int l = 0; l < _nLoci; l++){
+    _gExp4D[l].resize(_nInd);
+    for(int i = 0; i < _nInd; i++){
+      _gExp4D[l][i].resize(_ploidy1);
+      for(int a1 = 0; a1 <= _ploidy1; a1++){
+        _gExp4D[l][i][a1].resize(_ploidy2 + 1);
+      }
+    }
+  }
+  //_gExp.resize(_nLoci * _nInd * (_ploidy1 + 1) * (_ploidy2 + 1));
+  _gLiks.resize(_nLoci);
+  for(int l = 0; l < _nLoci; l++){
+    _gLiks[l].resize(_nInd);
+    for(int i = 0; i < _nInd; i++){
+      _gLiks[l][i].resize(_ploidy + 1);
+    }
+  }
+  //* _nInd * (_ploidy + 1));
   _freqs2.resize(_nLoci);
 
   _perSiteLogLikFreqs2.resize(_nLoci);
@@ -298,11 +321,11 @@ void ModelAlloSNP::initParams(){
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
 
-        if(_totReads[i2d] == MISSING){
-          _gLiks[i3d] = BADLIK;
+        if(_totReads[i][l] == MISSING){
+          _gLiks[l][i][a] = BADLIK;
         } else {
           gEpsilon = f_epsilon(a, _ploidy, _errRates[l]);
-          _gLiks[i3d] = r->binomPdf(_totReads[i2d], _refReads[i2d], gEpsilon);
+          _gLiks[l][i][a] = r->binomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           //std::cerr << gEpsilon << "    " << _gLiks[i3d] << std::endl;
         }
 
@@ -349,7 +372,7 @@ void ModelAlloSNP::eStep(){
     for(int i = 0; i < _nInd; i++){
       tmp_exp_sum = 0.0;
 
-      if(_totReads[i*_nLoci + l] == MISSING)
+      if(_totReads[i][l] == MISSING)
         continue;
 
       for(int a1 = 0; a1 <= _ploidy1; a1++){
@@ -357,8 +380,8 @@ void ModelAlloSNP::eStep(){
           i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + (a1 + a2);
           i2d = a1 * (_ploidy2 + 1) + a2;
 
-          tmp_exp[i2d] = _gLiks[i3d] * r->binomPdf(_ploidy1, a1, _freqs1[l])
-                                     * r->binomPdf(_ploidy2, a2, _freqs2[l]);
+          tmp_exp[i2d] = _gLiks[l][i][a1+a2] * r->binomPdf(_ploidy1, a1, _freqs1[l])
+                                             * r->binomPdf(_ploidy2, a2, _freqs2[l]);
 
           tmp_exp_sum += tmp_exp[i2d];
 
@@ -373,7 +396,7 @@ void ModelAlloSNP::eStep(){
           i4d = l * _nInd * (_ploidy1 + 1) * (_ploidy2 + 1) + i * (_ploidy1 + 1) * (_ploidy2 + 1) + a1 * (_ploidy2 + 1) + a2;
           i2d = a1 * (_ploidy2 + 1) + a2;
 
-          _gExp[i4d] = tmp_exp[i2d] / tmp_exp_sum;
+          _gExp4D[l][i][a1][a2] = tmp_exp[i2d] / tmp_exp_sum;
         }
       }
 
@@ -399,7 +422,7 @@ void ModelAlloSNP::mStep(){
       for(int i = 0; i < _nInd; i++){
 
         // Catch missing data and skip
-        if(_totReads[i * _nLoci + l] == MISSING){
+        if(_totReads[i][l] == MISSING){
           //std::cerr << "Skip " << i+1 << "," << l+1 << std::endl;
           continue;
         }
@@ -408,7 +431,7 @@ void ModelAlloSNP::mStep(){
         for(int a1 = 0; a1 <= _ploidy1; a1++){
           for(int a2 = 0; a2 <= _ploidy2; a2++){
             i4d = l * _nInd * (_ploidy1 + 1) * (_ploidy2 + 1) + i * (_ploidy1 + 1) * (_ploidy2 + 1) + a1 * (_ploidy2 + 1) + a2;
-            numerator += (double) a2 * _gExp[i4d];
+            numerator += (double) a2 * _gExp4D[l][i][a1][a2];
           }
         }
 
@@ -452,15 +475,15 @@ double ModelAlloSNP::calcFreqs2LogLik(double x){
     tmpLik = 0.0;
 
     // Catch missing data and skip
-    if(_totReads[i * _nLoci + _currLoc] == MISSING)
+    if(_totReads[i][_currLoc] == MISSING)
       continue;
 
 
     for(int a1 = 0; a1 <= _ploidy1; a1++){
       for(int a2 = 0; a2 <= _ploidy2; a2++){
         i3d = _currLoc * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + (a1 + a2);
-        tmpLik += _gLiks[i3d] * r->binomPdf(_ploidy1, a1, _freqs1[_currLoc])
-                              * r->binomPdf(_ploidy2, a2, x);
+        tmpLik += _gLiks[_currLoc][i][a1+a2] * r->binomPdf(_ploidy1, a1, _freqs1[_currLoc])
+                                             * r->binomPdf(_ploidy2, a2, x);
       }
     }
 
@@ -480,13 +503,13 @@ double ModelAlloSNP::calcLogLik(){
     for(int i = 0; i < _nInd; i++){
 
       // Catch missing data and skip
-      if(_totReads[i * _nLoci + l] == MISSING)
+      if(_totReads[i][l] == MISSING)
         continue;
 
       for(int a1 = 0; a1 <= _ploidy1; a1++){
         for(int a2 = 0; a2 <= _ploidy2; a2++){
           i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + (a1 + a2);
-          tmpLik += _gLiks[i3d] * (r->binomPdf(_ploidy1, a1, _freqs1[l]) * r->binomPdf(_ploidy2, a2, _freqs2[l]));
+          tmpLik += _gLiks[l][i][a1+a2] * (r->binomPdf(_ploidy1, a1, _freqs1[l]) * r->binomPdf(_ploidy2, a2, _freqs2[l]));
         }
       }
 

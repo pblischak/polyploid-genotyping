@@ -585,7 +585,7 @@ inline double MbRandom::binomPdf(int size, int x, double prob){
   double res = 0.0;
 
   //if(prob == 0){
-    res = exp(lnChoose(size, x)) * pow(prob, x) * pow(1 - prob, (size - x));
+  res = exp(lnChoose(size, x)) * pow(prob, x) * pow(1 - prob, (size - x));
   //} else if(prob == 1){
   //  res = lnChoose(size, x) + (x * log(prob - 1e-6)) + ((size - x) * log(1 - prob + 1e-6));
   //} else {

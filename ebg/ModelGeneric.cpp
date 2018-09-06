@@ -10,10 +10,14 @@
 #include "main.hpp"
 
 // Declare static member variables that are needed to pass member functions to Brent's method code
-std::vector<double> ModelGeneric::_freqs, ModelGeneric::_errRates, ModelGeneric::_gExp, ModelGeneric::_gLiks, ModelGeneric::_perSiteLogLik,
+std::vector<double> ModelGeneric::_freqs, ModelGeneric::_errRates, ModelGeneric::_perSiteLogLik,
                     ModelGeneric::_theta0Loci, ModelGeneric::_theta1Loci, ModelGeneric::_theta2Loci, ModelGeneric::_thetaPrimeLoci,
                     ModelGeneric::_vLoci, ModelGeneric::_rLoci, ModelGeneric::_prevFreqs;
-std::vector<int> ModelGeneric::_totReads, ModelGeneric::_refReads;
+
+std::vector< std::vector< std::vector<double> > > ModelGeneric::_gExp, ModelGeneric::_gLiks;
+std::vector< std::vector< std::vector< std::vector<double> > > > ModelGeneric::_gExp4D;
+//std::vector<int> ModelGeneric::_totReads, ModelGeneric::_refReads;
+std::vector< std::vector<int> > ModelGeneric::_totReads, ModelGeneric::_refReads;
 double ModelGeneric::_tol = 1.0e-10, ModelGeneric::_currLogLik = 0.0, ModelGeneric::_prevLogLik = 0.0, ModelGeneric::_stopVal = 1.0e-5,
        ModelGeneric::_alpha = -1.0;
 int ModelGeneric::_nInd = -999, ModelGeneric::_nLoci = -999, ModelGeneric::_ploidy = -999, ModelGeneric::_maxIters = 100, ModelGeneric::_currLoc = 0;
@@ -22,7 +26,14 @@ bool ModelGeneric::_quiet = 0, ModelGeneric::_brent = 0;
 
 void ModelGeneric::getData(){
 
-  int readVal = 0, counter = 0;
+  _totReads.resize(_nInd);
+  _refReads.resize(_nInd);
+  for(int i = 0; i < _nInd; i++){
+    _totReads[i].resize(_nLoci);
+    _refReads[i].resize(_nLoci);
+  }
+  
+  int readVal = -999, rowCounter = 0, colCounter = 0, count = 0;
   double errorVal = 0.0;
 
   std::ifstream _totalReadsStream(_totalReadsFile);
@@ -30,27 +41,48 @@ void ModelGeneric::getData(){
   std::ifstream _errorRatesStream(_errorRatesFile);
 
   if(_totalReadsStream.is_open()){
-    while(_totalReadsStream >> readVal){
-      counter++;
-
-      if(readVal == 0){
-        std::cerr << "\n  Values of 0 in the total reads matrix are not allowed.\n"
-                  << "  Missing data should be marked as -9. (" << counter << ")\n\n";
-        exit(EXIT_FAILURE);
-      } else {
-        _totReads.push_back(readVal);
+    for(int i = 0; i < _nInd; ++i){
+      for(int l = 0; l < _nLoci; ++l){
+        if(_totalReadsStream >> readVal){
+          if(readVal == 0){
+            std::cerr << "\n  Values of 0 in the total reads matrix are not allowed.\n"
+                      << "  Missing data should be marked as -9. (" << i + 1 << ","  << l + 1
+                      << ")\n\n";
+            //exit(EXIT_FAILURE);
+          } else {
+            _totReads[i][l] = readVal;
+            //std::cerr << readVal << std::endl;
+          }
+        } else {
+          std::cerr << "Couldn't be read: " << i << "," << l << std::endl;
+        }
       }
-
     }
   } else {
     std::cerr << "Could not open total reads file: " << _totalReadsFile << std::endl;
     exit(EXIT_FAILURE);
   }
-
+  
+  //colCounter = 0, rowCounter = 0;
   if(_refReadsStream.is_open()){
-    while(_refReadsStream >> readVal){
-      _refReads.push_back(readVal);
+    for(int i = 0; i < _nInd; ++i){
+      for(int l = 0; l < _nLoci; ++l){
+        _refReadsStream >> _refReads[i][l];
+        if(_refReads[i][l] == -9 && _totReads[i][l] != -9){
+          _totReads[i][l] = -9;
+        }
+      }
     }
+    /*while(_refReadsStream >> readVal){
+      _refReads[rowCounter][colCounter] = readVal;
+      colCounter++;
+      
+      if(colCounter == _nLoci){
+        rowCounter++;
+        //std::cerr << rowCounter << "," << colCounter << std::endl;
+        colCounter = 0;
+      }
+    }*/
   } else {
     std::cerr << "Could not open ALT allele reads file: " << _refReadsFile << std::endl;
     exit(EXIT_FAILURE);
@@ -58,7 +90,9 @@ void ModelGeneric::getData(){
 
   if(_errorRatesStream.is_open()){
     while(_errorRatesStream >> errorVal){
+      count++;
       _errRates.push_back(errorVal);
+      //std::cerr << count << std::endl;
     }
   } else {
     std::cerr << "Could not open error rates file: " << _errorRatesFile << std::endl;
@@ -76,12 +110,12 @@ void ModelGeneric::checkInput(){
   double total = (double) _nInd * _nLoci;
   int missing = 0;
 
-  if(_totReads.size() != (size_t) (_nInd * _nLoci)){
+  if(_totReads.size() * _totReads[0].size() != (size_t) (_nInd * _nLoci)){
     std::cerr << "The size of the total reads matrix is incorrect (" << _totReads.size() << " not equal to num-ind * num-loci)." << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  if(_refReads.size() != (size_t) (_nInd * _nLoci)){
+  if(_refReads.size() * _refReads[0].size() != (size_t) (_nInd * _nLoci)){
     std::cerr << "The size of the ALT allele reads matrix is incorrect (" <<  _refReads.size() << " not equal to num-ind * num-loci)." << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -93,7 +127,7 @@ void ModelGeneric::checkInput(){
 
   for(int i = 0; i < _nInd; i++){
     for(int l = 0; l < _nLoci; l++){
-      if(_totReads[i * _nLoci + l] == MISSING)
+      if(_totReads[i][l] == MISSING)
         missing++;
     }
   }

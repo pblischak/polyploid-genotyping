@@ -5,7 +5,7 @@ OBJ = MbRandom.o ModelGeneric.o \
 			ModelAlloSNP.o ModelGATK.o \
 			ModelGL.o main.o
 CXX = g++
-CXXFLAGS = -Wall -O3 -g -std=c++11
+CXXFLAGS = -Wall -O3 -g -std=c++11 -Wextra -Wpedantic
 OPENMP=no
 ifeq ($(strip $(OPENMP)), yes)
         CXXFLAGS += -fopenmp
@@ -31,3 +31,6 @@ install :
 uninstall :
 	@printf "\nRemoving executable from /usr/local/bin...\n\n"
 	@rm -i /usr/local/bin/$(EXE)
+
+test :
+	./ebg hwe -n 100 -l 10 -p 4 -t tot.txt -a alt.txt -e err.txt

@@ -101,7 +101,14 @@ void ModelGATK::checkCommandLine(){
 
 void ModelGATK::initParams(){
 
-  _gLiks.resize(_nLoci * _nInd * (_ploidy + 1));
+  //_gLiks.resize(_nLoci * _nInd * (_ploidy + 1));
+  _gLiks.resize(_nLoci);
+  for(int l = 0; l < _nLoci; l++){
+    _gLiks[l].resize(_nInd);
+    for(int i = 0; i < _nInd; i++){
+      _gLiks[l][i].resize(_ploidy + 1);
+    }
+  }
   int i2d = 0, i3d = 0; // indices for entries in 2D and 3D arrays stored as vectors
   double gEpsilon = 0.0; // error corrected genotype
 
@@ -111,11 +118,11 @@ void ModelGATK::initParams(){
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
 
-        if(_totReads[i2d] == MISSING){
-          _gLiks[i3d] = BADLIK;
+        if(_totReads[i][l] == MISSING){
+          _gLiks[l][i][a] = BADLIK;
         } else {
           gEpsilon = f_epsilon(a, _ploidy, _errRates[l]);
-          _gLiks[i3d] = r->binomPdf(_totReads[i2d], _refReads[i2d], gEpsilon);
+          _gLiks[l][i][a] = r->binomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           // std::cout << gEpsilon << "    " << _gLiks[i3d] << std::endl;
         }
 
@@ -141,9 +148,16 @@ void ModelGATK::printOutput(){
   std::ofstream ratioStream;
   ratioStream.open(ratioFile, std::ios::out);
 
-  std::vector<double> tmp_val(_ploidy+1, 0.0), g_post_prob(_ploidy+1, 0.0), ratio(_nInd * _nLoci, -9);
+  std::vector<double> tmp_val(_ploidy+1, 0.0), g_post_prob(_ploidy+1, 0.0);
+  std::vector< std::vector<double> > ratio;
   double tmp_val_sum = 0.0;
-  std::vector<int> genotypes(_nInd * _nLoci, -9);
+  std::vector< std::vector<int> > genotypes;
+  genotypes.resize(_nInd);
+  ratio.resize(_nInd);
+  for(int i = 0; i < _nInd; i++){
+    genotypes[i].resize(_nLoci, -9);
+    ratio[i].resize(_nLoci, -9);
+  }
   int i3d = 0, i2d = 0;
 
   for(int l = 0; l < _nLoci; l++){
@@ -154,12 +168,12 @@ void ModelGATK::printOutput(){
         probsStream << l+1 << "\t" << i+1 << "\t";
 
       // Catch missing data and skip
-      if(_totReads[i2d] == MISSING)
+      if(_totReads[i][l] == MISSING)
         continue;
 
         for(int a = 0; a <= _ploidy; a++){
           i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-          tmp_val[a] = _gLiks[i3d];
+          tmp_val[a] = _gLiks[l][i][a];
           tmp_val_sum += tmp_val[a];
         }
 
@@ -171,9 +185,9 @@ void ModelGATK::printOutput(){
         if(_printProbs)
           probsStream << std::endl;
 
-        genotypes[i2d] = gMax(g_post_prob);
+        genotypes[i][l] = gMax(g_post_prob);
         std::sort(g_post_prob.begin(), g_post_prob.end(), std::greater<double>());
-        ratio[i2d] = g_post_prob[0] / g_post_prob[1];
+        ratio[i][l] = g_post_prob[0] / g_post_prob[1];
 
       }
     }
@@ -181,8 +195,8 @@ void ModelGATK::printOutput(){
     for(int i = 0; i < _nInd; i++){
       for(int l = 0; l < _nLoci; l++){
         i2d = i * _nLoci + l;
-        genosStream << genotypes[i2d] << "\t";
-        ratioStream << ratio[i2d] << "\t";
+        genosStream << genotypes[i][l] << "\t";
+        ratioStream << ratio[i][l] << "\t";
       }
       genosStream << std::endl;
       ratioStream << std::endl;

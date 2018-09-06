@@ -107,20 +107,24 @@ void ModelDiseq::printOutput(){
   plStream.open(plFile, std::ios::out);
   std::vector<double> tmp_val(_ploidy+1, 0.0), g_post_prob(_ploidy+1, 0.0);
   double tmp_val_sum = 0.0, phiConverted = 0.0, tmp_PL = 0.0;
-  std::vector<int> genotypes(_nInd * _nLoci, -9);
+  std::vector< std::vector<int> > genotypes;
+  genotypes.resize(_nInd);
+  for(int i = 0; i < _nInd; i++){
+    genotypes[i].resize(_nLoci, -9);
+  }
   int i3d = 0, i2d = 0;
   for(int l = 0; l < _nLoci; l++){
     for(int i = 0; i < _nInd; i++){
       i2d = i * _nLoci + l;
       // Catch missing data and skip
-      if(_totReads[i2d] == missing)
+      if(_totReads[i][l] == missing)
         continue;
 
       tmp_val_sum = 0.0;
       phiConverted = 1.0 / _phi[i] - 1.0;
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        tmp_val[a] = _gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1 - _freqs[l]) * phiConverted);
+        tmp_val[a] = _gLiks[l][i][a] + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1 - _freqs[l]) * phiConverted);
         tmp_val_sum += exp(tmp_val[a]);
       }
       for(int a = 0; a <= _ploidy; a++){
@@ -136,14 +140,14 @@ void ModelDiseq::printOutput(){
         }
       }
       plStream << "\t";
-      genotypes[i2d] = gMax(g_post_prob);
+      genotypes[i][l] = gMax(g_post_prob);
     }
     plStream << std::endl;
   }
   for(int i = 0; i < _nInd; i++){
     for(int l = 0; l < _nLoci; l++){
       i2d = i * _nLoci + l;
-      genosStream << genotypes[i2d] << "\t";
+      genosStream << genotypes[i][l] << "\t";
     }
     genosStream << std::endl;
   }
@@ -198,8 +202,16 @@ void ModelDiseq::checkCommandLine(){
 }
 
 void ModelDiseq::initParams(){
-  _gExp.resize(_nLoci * _nInd * (_ploidy + 1));
-  _gLiks.resize(_nLoci * _nInd * (_ploidy + 1));
+  _gExp.resize(_nLoci);
+  _gLiks.resize(_nLoci);
+  for(int l = 0; l < _nLoci; l++){
+    _gExp[l].resize(_nInd);
+    _gLiks[l].resize(_nInd);
+    for(int i = 0; i < _nInd; i++){
+      _gExp[l][i].resize(_ploidy + 1);
+      _gLiks[l][i].resize(_ploidy + 1);
+    }
+  }
   _freqs.resize(_nLoci);
   _perSiteLogLik.resize(_nLoci);
   _perIndLogLik.resize(_nInd);
@@ -221,11 +233,11 @@ void ModelDiseq::initParams(){
       i2d = i * _nLoci + l;
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        if(_totReads[i2d] == missing){
-          _gLiks[i3d] = bad_lik;
+        if(_totReads[i][l] == missing){
+          _gLiks[l][i][a] = bad_lik;
         } else {
           gEpsilon = f_epsilon(a, _ploidy, _errRates[l]);
-          _gLiks[i3d] = r->lnBinomPdf(_totReads[i2d], _refReads[i2d], gEpsilon);
+          _gLiks[l][i][a] = r->lnBinomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           //std::cerr << gEpsilon << "    " << _gLiks[i3d] << std::endl;
         }
       }
@@ -238,7 +250,7 @@ double ModelDiseq::calcFreqLogLik(double x){
   double logLik = 0.0, alpha = 0.0, beta = 0.0, phiConverted = 0;
   for(int i = 0; i < _nInd; i++){
     // Catch missing data and skip
-    if(_totReads[i * _nLoci + _currLoc] == missing)
+    if(_totReads[i][_currLoc] == missing)
       continue;
 
     phiConverted = 1.0 / _phi[i] - 1.0;
@@ -249,7 +261,7 @@ double ModelDiseq::calcFreqLogLik(double x){
     beta  = (1 - x) * phiConverted;
     for(int a = 0; a <= _ploidy; a++){
       i3d = _currLoc * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-      logLik += _gExp[i3d] * (_gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
+      logLik += _gExp[_currLoc][i][a] * (_gLiks[_currLoc][i][a] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
       //std::cerr << _currLoc+1 << "\t" << i+1 << "\t" << a << "\t" << _gExp[i3d] << "\t" << r->lnBetaBinomPdf(_ploidy, a, alpha, beta) << std::endl;
     }
   }
@@ -263,14 +275,14 @@ double ModelDiseq::calcPhiLogLik(double x){
   double logLik = 0.0, alpha = 0.0, beta = 0.0, phiConverted = 1.0 / x - 1.0;
   for(int l = 0; l < _nLoci; l++){
     // Catch missing data and skip
-    if(_totReads[_currInd * _nLoci + l] == missing)
+    if(_totReads[_currInd][l] == missing)
       continue;
 
     alpha = _freqs[l] * phiConverted;
     beta  = (1 - _freqs[l]) * phiConverted;
     for(int a = 0; a <= _ploidy; a++){
       i3d = l * _nInd * (_ploidy + 1) + _currInd * (_ploidy + 1) + a;
-      logLik += _gExp[i3d] * (_gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
+      logLik += _gExp[l][_currInd][a] * (_gLiks[l][_currInd][a] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
     }
   }
   return -logLik;
@@ -284,7 +296,7 @@ void ModelDiseq::eStep(){
   for(int l = 0; l < _nLoci; l++){
     for(int i = 0; i < _nInd; i++){
       // Catch missing data and skip
-      if(_totReads[i * _nLoci + l] == missing)
+      if(_totReads[i][l] == missing)
         continue;
 
       tmp_exp_sum = 0.0;
@@ -294,17 +306,17 @@ void ModelDiseq::eStep(){
 
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        tmp_exp[a] = _gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted);
+        tmp_exp[a] = _gLiks[l][i][a] + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted);
         //std::cerr << tmp_exp[a] << "    " << _gLiks[i3d] << "    " << r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1 - _freqs[l]) * phiConverted) << std::endl;
         tmp_exp_sum += exp(tmp_exp[a]);
       }
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        _gExp[i3d] = exp(tmp_exp[a]) / tmp_exp_sum;
+        _gExp[l][i][a] = exp(tmp_exp[a]) / tmp_exp_sum;
         if(print){
         std::cout << i+1 << "    " << l+1 << "    "
                   << a << "    " << r->betaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted) << "    "
-                  << tmp_exp[a] << "    " <<  _gExp[i3d] << "    "
+                  << tmp_exp[a] << "    " <<  _gExp[l][i][a] << "    "
                   << phiConverted << "    " << _freqs[l] << std::endl;
         }
       }
@@ -322,7 +334,7 @@ void ModelDiseq::eStepTwo(){
     for(int i = 0; i < _nInd; i++){
 
       // Catch missing data and skip
-      if(_totReads[i * _nLoci + l] == missing)
+      if(_totReads[i][l] == missing)
         continue;
 
       tmp_exp_sum = 0.0;
@@ -334,7 +346,7 @@ void ModelDiseq::eStepTwo(){
 
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        tmp_exp[a] = log(_gLiks[i3d]) + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted);
+        tmp_exp[a] = log(_gLiks[l][i][a]) + r->lnBetaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted);
         //std::cerr << tmp_exp[a] << "    " << _gLiks[i3d] << "    " << r->betaBinomPdf(_ploidy, a, _freqs[l] * _phi[i], (1 - _freqs[l]) * _phi[i]) << std::endl;
       }
 
@@ -345,12 +357,12 @@ void ModelDiseq::eStepTwo(){
 
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        _gExp[i3d] = exp(tmp_exp[a] - max_val - tmp_exp_sum);
+        _gExp[l][i][a] = exp(tmp_exp[a] - max_val - tmp_exp_sum);
 
         if(print){
         std::cout << i+1 << "    " << l+1 << "    "
                   << a << "    " << r->betaBinomPdf(_ploidy, a, _freqs[l] * phiConverted, (1.0 - _freqs[l]) * phiConverted) << "    "
-                  << tmp_exp[a] << "    " <<  _gExp[i3d] << "    "
+                  << tmp_exp[a] << "    " <<  _gExp[l][i][a] << "    "
                   << phiConverted << "    " << _freqs[l] << std::endl;
         }
 
@@ -429,7 +441,7 @@ double ModelDiseq::calcLogLik(){
   for(int l = 0; l < _nLoci; l++){
     for(int i = 0; i < _nInd; i++){
       // Catch missing data and skip
-      if(_totReads[i * _nLoci + l] == missing)
+      if(_totReads[i][l] == missing)
         continue;
 
       phiConverted = 1.0 / _phi[i] - 1.0;
@@ -443,7 +455,7 @@ double ModelDiseq::calcLogLik(){
       tmpLik = 0.0;
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
-        tmpLik += exp(_gLiks[i3d] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
+        tmpLik += exp(_gLiks[l][i][a] + r->lnBetaBinomPdf(_ploidy, a, alpha, beta));
       }
       logLik += log(tmpLik);
     }

@@ -10,10 +10,13 @@ public:
 
 protected:
 
-  static std::vector<double> _freqs, _prevFreqs, _errRates, _gExp, _gLiks, _perSiteLogLik,
+  static std::vector<double> _freqs, _prevFreqs, _errRates, _perSiteLogLik,
                              _theta0Loci, _theta1Loci, _theta2Loci,
                              _rLoci, _vLoci, _thetaPrimeLoci;
-  static std::vector<int> _totReads, _refReads;
+  static std::vector< std::vector< std::vector<double> > > _gLiks, _gExp;
+  static std::vector< std::vector< std::vector< std::vector<double> > > > _gExp4D;
+  // static std::vector<int> _totReads, _refReads;
+  static std::vector< std::vector<int> > _totReads, _refReads;
   static double _tol, _currLogLik, _prevLogLik, _stopVal, _alpha;
   static int _nInd, _nLoci, _ploidy, _maxIters, _currLoc;
   static std::string _totalReadsFile, _refReadsFile, _errorRatesFile, _prefix;
