@@ -160,7 +160,7 @@ void ModelHWE::initParams(){
           //_gLiks[l][i][a] = r->binomPdf(_totReads[i][l], _refReads[i][l], gEpsilon);
           _gLiks[l][i][a] = exp(r->lnBinomPdf(_totReads[i][l], _refReads[i][l], gEpsilon));
           // std::cout << gEpsilon << "    " << _gLiks[i3d] << std::endl;
-          if(_gLiks[l][i][a] < max_small || isnan(_gLiks[l][i][a])){
+          if(_gLiks[l][i][a] < max_small || std::isnan(_gLiks[l][i][a])){
             _gLiks[l][i][a] = max_small;
           }
         }
@@ -183,7 +183,7 @@ void ModelHWE::eStep(){
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
         binom_prob = r->binomPdf(_ploidy, a, _freqs[l]);
-        if(isnan(binom_prob)){
+        if(std::isnan(binom_prob)){
           binom_prob = max_small;
         }
         tmp_exp[a] = _gLiks[l][i][a] * binom_prob;
@@ -195,7 +195,7 @@ void ModelHWE::eStep(){
       for(int a = 0; a <= _ploidy; a++){
         i3d = l * _nInd * (_ploidy + 1) + i * (_ploidy + 1) + a;
         _gExp[l][i][a] = tmp_exp[a] / tmp_exp_sum;
-        if(_gExp[l][i][a] < max_small || isnan(_gExp[l][i][a])){
+        if(_gExp[l][i][a] < max_small || std::isnan(_gExp[l][i][a])){
           _gExp[l][i][a] = max_small;
         }
         
@@ -230,7 +230,7 @@ void ModelHWE::mStep(){
         }
       }
       _freqs[l] = (double) numerator / nChromosomes;
-      if(_freqs[l] < min_freq || isnan(_freqs[l])){
+      if(_freqs[l] < min_freq || std::isnan(_freqs[l])){
         _freqs[l] = min_freq;
         check = 0;
       }
