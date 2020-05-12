@@ -290,7 +290,7 @@ void ModelAlloSNP::initParams(){
   for(int l = 0; l < _nLoci; l++){
     _gExp4D[l].resize(_nInd);
     for(int i = 0; i < _nInd; i++){
-      _gExp4D[l][i].resize(_ploidy1);
+      _gExp4D[l][i].resize(_ploidy1 + 1);
       for(int a1 = 0; a1 <= _ploidy1; a1++){
         _gExp4D[l][i][a1].resize(_ploidy2 + 1);
       }
