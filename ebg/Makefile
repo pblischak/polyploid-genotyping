@@ -2,8 +2,8 @@
 EXE = ebg
 OBJ = MbRandom.o ModelGeneric.o \
 			ModelHWE.o ModelDiseq.o \
-			ModelAlloSNP.o ModelGATK.o \
-			ModelGL.o main.o
+			ModelAlloSNP.o ModelAlloSNP2.o \
+			ModelGATK.o ModelGL.o main.o
 CXX = g++
 CXXFLAGS = -Wall -O3 -g -std=c++11 -Wextra -Wpedantic
 OPENMP=no

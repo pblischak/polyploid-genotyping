@@ -33,7 +33,7 @@ void ModelGeneric::getData(){
     _refReads[i].resize(_nLoci);
   }
   
-  int readVal = -999, rowCounter = 0, colCounter = 0, count = 0;
+  int readVal = -999, count = 0; //rowCounter = 0, colCounter = 0, count = 0;
   double errorVal = 0.0;
 
   std::ifstream _totalReadsStream(_totalReadsFile);

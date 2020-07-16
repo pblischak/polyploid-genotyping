@@ -10,6 +10,7 @@
 #include "ModelHWE.hpp"
 #include "ModelDiseq.hpp"
 #include "ModelAlloSNP.hpp"
+#include "ModelAlloSNP2.hpp"
 #include "ModelGATK.hpp"
 #include "ModelGL.hpp"
 #include "main.hpp"
@@ -27,7 +28,7 @@ int main(int argc, char* argv[]){
     mainUsage();
     exit(EXIT_SUCCESS);
   }
-  if(strcmp(argv[1],"-v") == 0 || strcmp(argv[1],"--version") == 0){
+  if(strcmp(argv[1],"-V") == 0 || strcmp(argv[1],"--version") == 0){
     std::cerr << "\nThis is ebg version " << VERSION << " (" << VERSIONDATE << ").\n" << std::endl;
     exit(EXIT_SUCCESS);
   }
@@ -41,6 +42,10 @@ int main(int argc, char* argv[]){
   }
   if(strcmp(argv[1], "alloSNP") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
     alloSNPusage();
+    exit(EXIT_SUCCESS);
+  }
+  if(strcmp(argv[1], "alloSNP2") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
+    alloSNP2usage();
     exit(EXIT_SUCCESS);
   }
   if(strcmp(argv[1], "gatk") == 0 && (strcmp(argv[2], "--help") == 0 || strcmp(argv[2], "-h") == 0)){
@@ -79,7 +84,10 @@ int main(int argc, char* argv[]){
     ModelAlloSNP mAlloSNP(argc, argv);
     mAlloSNP.em();
     mAlloSNP.printOutput();
-  } else if(strcmp(selectedModel.c_str(), "gatk") == 0){
+  } else if(strcmp(selectedModel.c_str(), "alloSNP2") == 0){
+    ModelAlloSNP2 mAlloSNP2(argc,argv);
+    mAlloSNP2.printOutput();
+  }else if(strcmp(selectedModel.c_str(), "gatk") == 0){
     ModelGATK mGATK(argc, argv);
     mGATK.printOutput();
   } else if(strcmp(selectedModel.c_str(), "gl") == 0){
@@ -96,11 +104,12 @@ void mainUsage(){
   std::cerr << "\nUsage: ebg <model> [model options]\n" << std::endl;
   std::cerr << "Main options:" << std::endl;
   std::cerr << "  -h [--help]        Prints a help message" << std::endl;
-  std::cerr << "  -v [--version]     Print version information" << std::endl;
+  std::cerr << "  -V [--version]     Print version information" << std::endl;
   std::cerr << "\nAvailable models:" << std::endl;
   std::cerr << "  hwe                Estimate genotypes under Hardy-Weinberg" << std::endl;
   std::cerr << "  diseq              Estimate genotypes assuming H-W disequilibrium" << std::endl;
-  std::cerr << "  alloSNP            Estimate genotypes within the subgenomes of an allopolyploid using a frequency panel" << std::endl;
+  std::cerr << "  alloSNP            Estimate genotypes within the subgenomes of an allopolyploid using one parent's allele frequencies" << std::endl;
+  std::cerr << "  alloSNP2           Estimate genotypes within the subgenomes of an allopolyploid using both parent's allele frequencies" << std::endl;
   std::cerr << "  gatk               Estimate genotypes using the GATK model (flat genotype prior)." << std::endl;
   std::cerr << "  gl                 Estimate genotypes directly using genotype likelihoods." << std::endl;
   std::cerr << "\nOptions for each model can be found by typing: ./ebg <model> --help\n" << std::endl;
@@ -157,6 +166,23 @@ void alloSNPusage(){
             << "  --stop              <double>     Stop value for EM algorithm parameter updates (default = 1e-5)" << std::endl
             << "  --prefix            <string>     Prefix for output files (default = alloSNP)" << std::endl
             << "  --brent                          Flag to use Brent's method if the EM algorithm doesn't converge" << std::endl
+            << "  --quiet                          Flag to suppress output to stdout\n" << std::endl;
+}
+
+void alloSNP2usage(){
+  std::cerr << "\nUsage: ebg alloSNP2 [alloSNP2 options]\n" << std::endl;
+  std::cerr << "Required options:" << std::endl
+            << "  -f1 [--freqs-file1] <string>     File with parent 1 reference allele frequencies" << std::endl
+            << "  -f2 [--freqs-file2] <string>     File with parent 2 reference allele frequencies" << std::endl
+            << "  -n [--num-ind]      <int>        Number of individuals" << std::endl
+            << "  -l [--num-loci]     <int>        Number of loci" << std::endl
+            << "  -p1 [--ploidy1]     <int>        Ploidy level of subgenome one" << std::endl
+            << "  -p2 [--ploidy2]     <int>        Ploidy level of subgenome two" << std::endl
+            << "  -t [--total-reads]  <string>     Total read counts file" << std::endl
+            << "  -a [--alt-reads]    <string>     ALT allele read counts file" << std::endl
+            << "  -e [--error-rates]  <string>     Sequencing error rates file" << std::endl
+            << "\nAdditional options:" << std::endl
+            << "  --prefix            <string>     Prefix for output files (default = alloSNP)" << std::endl
             << "  --quiet                          Flag to suppress output to stdout\n" << std::endl;
 }
 
