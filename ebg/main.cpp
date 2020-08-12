@@ -56,8 +56,8 @@ int main(int argc, char* argv[]){
     glUsage();
     exit(EXIT_SUCCESS);
   }
-  if(strcmp(argv[1], "hwe") != 0 && strcmp(argv[1], "diseq") != 0 && strcmp(argv[1], "alloSNP") != 0 && strcmp(argv[1], "gatk") != 0 && strcmp(argv[1], "gl") != 0){
-    std::cerr << "\nA valid model was not selected. The options are: hwe, diseq, alloSNP, gatk, and gl.\n" << std::endl;
+  if(strcmp(argv[1], "hwe") != 0 && strcmp(argv[1], "diseq") != 0 && strcmp(argv[1], "alloSNP") != 0 && strcmp(argv[1], "alloSNP2") != 0 && strcmp(argv[1], "gatk") != 0 && strcmp(argv[1], "gl") != 0){
+    std::cerr << "\nA valid model was not selected. The options are: hwe, diseq, alloSNP, alloSNP2, gatk, and gl.\n" << std::endl;
     mainUsage();
     exit(EXIT_FAILURE);
   } else {
